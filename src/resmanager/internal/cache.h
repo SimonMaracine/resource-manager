@@ -26,7 +26,7 @@ namespace resmanager {
         template<typename... Args>
         std::shared_ptr<T> force_load(const uint32_t id, Args&&... args);
 
-        std::shared_ptr<T> operator[](const uint32_t id) const;
+        std::shared_ptr<T> operator[](const uint32_t id);
         bool contains(const uint32_t id) const;
         std::shared_ptr<T> release(const uint32_t id);
 
@@ -75,7 +75,7 @@ namespace resmanager {
     }
 
     template<typename T, typename L>
-    std::shared_ptr<T> Cache<T, L>::operator[](const uint32_t id) const {
+    std::shared_ptr<T> Cache<T, L>::operator[](const uint32_t id) {
         return cache[id];
     }
 
@@ -97,7 +97,7 @@ namespace resmanager {
 
     template<typename T, typename L>
     void Cache<T, L>::merge(Cache&& other) {
-        cache.merge(std::move(other));
+        cache.merge(std::move(other.cache));
     }
 
     template<typename T, typename L>
