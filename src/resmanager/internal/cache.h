@@ -97,7 +97,7 @@ namespace resmanager {
 
     template<typename T, typename L>
     void Cache<T, L>::merge(Cache&& other) {
-        cache.merge(std::move(other));
+        cache.merge(std::move(other.cache));
     }
 
     template<typename T, typename L>

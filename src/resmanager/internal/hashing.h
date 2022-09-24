@@ -25,7 +25,7 @@ namespace resmanager {
     constexpr hashed_str::hashed_str(const char* string)
         : hash(fnv1a(string)) {}
 
-    hashed_str::hashed_str(const std::string& string)
+    inline hashed_str::hashed_str(const std::string& string)
         : hash(fnv1a(string.c_str())) {}
 
     constexpr uint32_t hashed_str::fnv1a(const char* string) {
