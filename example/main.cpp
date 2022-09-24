@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../src/resmananger/resmananger.h"
+#include "../src/resmanager/resmanager.h"
 
 struct Foo {
     int x = 0;
@@ -14,7 +14,7 @@ int main() {
 
     const uint32_t hash3 = resmanager::hashed_str {std::string {"Hello, world!"}};
 
-    resmananger::Cache<Foo> cache;
+    resmanager::Cache<Foo> cache;
 
     auto foo = cache.load("foo"_h);
     foo->x = 20;

@@ -3,7 +3,7 @@
 #include <memory>
 #include <utility>
 
-namespace resmananger {
+namespace resmanager {
     template<typename T>
     struct Loader {
         template<typename... Args>

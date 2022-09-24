@@ -8,7 +8,7 @@
 
 #include "loader.h"
 
-namespace resmananger {
+namespace resmanager {
     template<typename T, typename L = Loader<T>>
     class Cache {
     public:
