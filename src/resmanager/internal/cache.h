@@ -76,7 +76,7 @@ namespace resmanager {
 
     template<typename T, typename L>
     std::shared_ptr<T> Cache<T, L>::operator[](const uint32_t id) const {
-        return cache[id];
+        return cache.at(id);
     }
 
     template<typename T, typename L>
