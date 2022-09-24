@@ -60,7 +60,7 @@ namespace resmananger {
         if (auto iter = cache.find(id); iter != cache.end()) {
             return iter->second;
         } else {
-            std::shared_ptr<T> resource = loader(std::forward<Args>(args)...);
+            std::shared_ptr<T> resource = loader.load(std::forward<Args>(args)...);
             cache[id] = resource;
             return resource; 
         }
@@ -69,7 +69,7 @@ namespace resmananger {
     template<typename T, typename L>
     template<typename... Args>
     std::shared_ptr<T> Cache<T, L>::force_load(const uint32_t id, Args&&... args) {
-        std::shared_ptr<T> resource = loader(std::forward<Args>(args)...);
+        std::shared_ptr<T> resource = loader.load(std::forward<Args>(args)...);
         cache[id] = resource;
         return resource; 
     }
