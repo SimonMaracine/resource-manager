@@ -14,8 +14,8 @@ namespace resmanager {
     public:
         Cache() = default;
         ~Cache() = default;
-        Cache(const Cache&) = delete;
-        Cache& operator=(const Cache&) = delete;
+        Cache(const Cache& other) = default;
+        Cache& operator=(const Cache& other) = default;
 
         Cache(Cache&& other);
         Cache& operator=(Cache&& other);
@@ -62,7 +62,7 @@ namespace resmanager {
         } else {
             std::shared_ptr<T> resource = loader.load(std::forward<Args>(args)...);
             cache[id] = resource;
-            return resource; 
+            return resource;
         }
     }
 
@@ -71,7 +71,7 @@ namespace resmanager {
     std::shared_ptr<T> Cache<T, L>::force_load(const uint32_t id, Args&&... args) {
         std::shared_ptr<T> resource = loader.load(std::forward<Args>(args)...);
         cache[id] = resource;
-        return resource; 
+        return resource;
     }
 
     template<typename T, typename L>
@@ -86,7 +86,7 @@ namespace resmanager {
 
     template<typename T, typename L>
     std::shared_ptr<T> Cache<T, L>::release(const uint32_t id) {
-        if (auto iter = cache.find(id); iter != cache.end()) { 
+        if (auto iter = cache.find(id); iter != cache.end()) {
             std::shared_ptr<T> resource = std::move(iter->second);
             cache.erase(id);
             return resource;
