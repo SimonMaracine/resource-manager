@@ -31,6 +31,7 @@ namespace resmanager {
         std::shared_ptr<T> release(const uint32_t id);
 
         void merge(Cache&& other);
+        void merge_replace(Cache&& other);
         void clear();
 
         size_t size() const { return cache.size(); }
@@ -98,6 +99,17 @@ namespace resmanager {
     template<typename T, typename L>
     void Cache<T, L>::merge(Cache&& other) {
         cache.merge(std::move(other.cache));
+    }
+
+    template<typename T, typename L>
+    void Cache<T, L>::merge_replace(Cache&& other) {
+        for (auto& [other_id, _] : other.cache) {
+            if (cache.find(other_id) != cache.end()) {
+                cache[other_id] = std::move(other.cache[other_id]);
+            } else {
+                cache[other_id] = other.cache[other_id];
+            }
+        }
     }
 
     template<typename T, typename L>
