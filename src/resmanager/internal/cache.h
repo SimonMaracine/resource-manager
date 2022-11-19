@@ -14,8 +14,8 @@ namespace resmanager {
     public:
         Cache() = default;
         ~Cache() = default;
-        Cache(const Cache& other) = default;
-        Cache& operator=(const Cache& other) = default;
+        Cache(const Cache&) = default;
+        Cache& operator=(const Cache&) = default;
 
         Cache(Cache&& other);
         Cache& operator=(Cache&& other);
