@@ -19,10 +19,20 @@ int main() {
 
     const uint32_t hash3 = resmanager::HashedStr32 {std::string {"Hello, world!"}};
 
-    resmanager::Cache<Foo> cache;
+    {
+        resmanager::Cache<Foo> cache;
 
-    auto foo = cache.load("foo"_h);
-    foo->x = 20;
+        auto foo = cache.load("foo"_h);
+        foo->x = 20;
 
-    std::cout << foo->x << std::endl;
+        std::cout << foo->x << std::endl;
+    }
+
+    {
+        resmanager::Cache<Foo, resmanager::Loader<Foo>, resmanager::HashedStr64> cache;
+        auto foo = cache.load("foo"_H);
+        foo->x = 40;
+
+        std::cout << foo->x << std::endl;
+    }
 }

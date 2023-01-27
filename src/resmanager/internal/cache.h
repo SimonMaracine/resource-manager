@@ -7,9 +7,10 @@
 #include <utility>
 
 #include "loader.h"
+#include "hashing.h"
 
 namespace resmanager {
-    template<typename T, typename L = Loader<T>>
+    template<typename T, typename L = Loader<T>, typename K = HashedStr32, typename H = Hash<K>>
     class Cache {
     public:
         Cache() = default;
@@ -21,14 +22,14 @@ namespace resmanager {
         Cache& operator=(Cache&& other);
 
         template<typename... Args>
-        std::shared_ptr<T> load(const uint32_t id, Args&&... args);
+        std::shared_ptr<T> load(const K id, Args&&... args);
 
         template<typename... Args>
-        std::shared_ptr<T> force_load(const uint32_t id, Args&&... args);
+        std::shared_ptr<T> force_load(const K id, Args&&... args);
 
-        std::shared_ptr<T> operator[](const uint32_t id) const;
-        bool contains(const uint32_t id) const;
-        std::shared_ptr<T> release(const uint32_t id);
+        std::shared_ptr<T> operator[](const K id) const;
+        bool contains(const K id) const;
+        std::shared_ptr<T> release(const K id);
 
         void merge(Cache&& other);
         void merge_replace(Cache&& other);
@@ -38,26 +39,26 @@ namespace resmanager {
         bool empty() const { return cache.empty(); }
     private:
         L loader;
-        std::unordered_map<uint32_t, std::shared_ptr<T>> cache;
+        std::unordered_map<K, std::shared_ptr<T>, H> cache;
     };
 
-    template<typename T, typename L>
-    Cache<T, L>::Cache(Cache&& other) {
+    template<typename T, typename L, typename K, typename H>
+    Cache<T, L, K, H>::Cache(Cache&& other) {
         cache = std::move(other.cache);
         loader = other.loader;
     }
 
-    template<typename T, typename L>
-    Cache<T, L>& Cache<T, L>::operator=(Cache&& other) {
+    template<typename T, typename L, typename K, typename H>
+    Cache<T, L, K, H>& Cache<T, L, K, H>::operator=(Cache&& other) {
         cache = std::move(other.cache);
         loader = other.loader;
 
         return *this;
     }
 
-    template<typename T, typename L>
+    template<typename T, typename L, typename K, typename H>
     template<typename... Args>
-    std::shared_ptr<T> Cache<T, L>::load(const uint32_t id, Args&&... args) {
+    std::shared_ptr<T> Cache<T, L, K, H>::load(const K id, Args&&... args) {
         if (auto iter = cache.find(id); iter != cache.end()) {
             return iter->second;
         } else {
@@ -67,26 +68,26 @@ namespace resmanager {
         }
     }
 
-    template<typename T, typename L>
+    template<typename T, typename L, typename K, typename H>
     template<typename... Args>
-    std::shared_ptr<T> Cache<T, L>::force_load(const uint32_t id, Args&&... args) {
+    std::shared_ptr<T> Cache<T, L, K, H>::force_load(const K id, Args&&... args) {
         std::shared_ptr<T> resource = loader.load(std::forward<Args>(args)...);
         cache[id] = resource;
         return resource;
     }
 
-    template<typename T, typename L>
-    std::shared_ptr<T> Cache<T, L>::operator[](const uint32_t id) const {
+    template<typename T, typename L, typename K, typename H>
+    std::shared_ptr<T> Cache<T, L, K, H>::operator[](const K id) const {
         return cache.at(id);
     }
 
-    template<typename T, typename L>
-    bool Cache<T, L>::contains(const uint32_t id) const {
+    template<typename T, typename L, typename K, typename H>
+    bool Cache<T, L, K, H>::contains(const K id) const {
         return cache.count(id) == 1;
     }
 
-    template<typename T, typename L>
-    std::shared_ptr<T> Cache<T, L>::release(const uint32_t id) {
+    template<typename T, typename L, typename K, typename H>
+    std::shared_ptr<T> Cache<T, L, K, H>::release(const K id) {
         if (auto iter = cache.find(id); iter != cache.end()) {
             std::shared_ptr<T> resource = std::move(iter->second);
             cache.erase(id);
@@ -96,13 +97,13 @@ namespace resmanager {
         return nullptr;
     }
 
-    template<typename T, typename L>
-    void Cache<T, L>::merge(Cache&& other) {
+    template<typename T, typename L, typename K, typename H>
+    void Cache<T, L, K, H>::merge(Cache&& other) {
         cache.merge(std::move(other.cache));
     }
 
-    template<typename T, typename L>
-    void Cache<T, L>::merge_replace(Cache&& other) {
+    template<typename T, typename L, typename K, typename H>
+    void Cache<T, L, K, H>::merge_replace(Cache&& other) {
         for (auto& [other_id, _] : other.cache) {
             if (cache.find(other_id) != cache.end()) {
                 cache[other_id] = std::move(other.cache[other_id]);
@@ -112,8 +113,8 @@ namespace resmanager {
         }
     }
 
-    template<typename T, typename L>
-    void Cache<T, L>::clear() {
+    template<typename T, typename L, typename K, typename H>
+    void Cache<T, L, K, H>::clear() {
         cache.clear();
     }
 }
