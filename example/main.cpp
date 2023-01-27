@@ -7,12 +7,17 @@ struct Foo {
 };
 
 int main() {
-    const uint32_t hash = resmanager::hashed_str {"b"};
+    constexpr uint64_t hash0 = resmanager::HashedStr64 {"s"};
+
+    constexpr uint32_t hash = resmanager::HashedStr32 {};
+    constexpr uint32_t hash1 = resmanager::HashedStr32 {"b"};
+
+    std::cout << hash1 << std::endl;
 
     using namespace resmanager::literals;
     const uint32_t hash2 = "Hello, Simon!"_h;
 
-    const uint32_t hash3 = resmanager::hashed_str {std::string {"Hello, world!"}};
+    const uint32_t hash3 = resmanager::HashedStr32 {std::string {"Hello, world!"}};
 
     resmanager::Cache<Foo> cache;
 
