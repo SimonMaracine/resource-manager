@@ -19,7 +19,39 @@ namespace resmanager {
         };
 
         template<typename T, typename V>
-        static constexpr T fnv1a(const char* string) {
+        class HashedStr {
+        public:
+            constexpr HashedStr() noexcept;
+            explicit constexpr HashedStr(const char* string) noexcept;  // TODO should be consteval, but we don't have C++20 yet
+            explicit HashedStr(const std::string& string) noexcept;
+
+            constexpr operator T() const noexcept { return hash; }
+            constexpr bool operator==(const HashedStr other) const noexcept;
+        private:
+            static constexpr T fnv1a(const char* string) noexcept;
+
+            const T hash;
+        };
+
+        template<typename T, typename V>
+        constexpr HashedStr<T, V>::HashedStr() noexcept
+            : hash(0) {}
+
+        template<typename T, typename V>
+        constexpr HashedStr<T, V>::HashedStr(const char* string) noexcept
+            : hash(fnv1a(string)) {}
+
+        template<typename T, typename V>
+        inline HashedStr<T, V>::HashedStr(const std::string& string) noexcept
+            : hash(fnv1a(string.c_str())) {}
+
+        template<typename T, typename V>
+        constexpr bool HashedStr<T, V>::operator==(const HashedStr other) const noexcept {
+            return hash == other.hash;
+        }
+
+        template<typename T, typename V>
+        constexpr T HashedStr<T, V>::fnv1a(const char* string) noexcept {
             T hash = V::FNV_OFFSET_BASIS;
 
             for (size_t i = 0; string[i] != '\0'; i++) {
@@ -29,47 +61,17 @@ namespace resmanager {
 
             return hash;
         }
-
-        template<typename T, typename V>
-        class HashedStr {
-        public:
-            constexpr HashedStr();
-            explicit constexpr HashedStr(const char* string);  // TODO should be consteval, but we don't have C++20 yet
-            explicit HashedStr(const std::string& string);
-
-            constexpr operator T() const { return hash; }
-            constexpr bool operator==(const HashedStr other) const;
-        private:
-            const T hash;
-        };
-
-        template<typename T, typename V>
-        constexpr HashedStr<T, V>::HashedStr()
-            : hash(0) {}
-
-        template<typename T, typename V>
-        constexpr HashedStr<T, V>::HashedStr(const char* string)
-            : hash(fnv1a<T, V>(string)) {}
-
-        template<typename T, typename V>
-        inline HashedStr<T, V>::HashedStr(const std::string& string)
-            : hash(fnv1a<T, V>(string.c_str())) {}
-
-        template<typename T, typename V>
-        constexpr bool HashedStr<T, V>::operator==(const HashedStr other) const {
-            return hash == other.hash;
-        }
     }
 
     using HashedStr32 = internal::HashedStr<uint32_t, internal::Variant32>;
     using HashedStr64 = internal::HashedStr<uint64_t, internal::Variant64>;
 
     namespace literals {
-        constexpr HashedStr32 operator""_h(const char* string, size_t) {
+        constexpr HashedStr32 operator""_h(const char* string, size_t) noexcept {
             return HashedStr32 {string};
         }
 
-        constexpr HashedStr64 operator""_H(const char* string, size_t) {
+        constexpr HashedStr64 operator""_H(const char* string, size_t) noexcept {
             return HashedStr64 {string};
         }
     }
@@ -80,7 +82,7 @@ namespace resmanager {
     */
     template<typename V>
     struct Hash {
-        constexpr size_t operator()(V hashed_string) const {
+        constexpr size_t operator()(V hashed_string) const noexcept {
             return static_cast<size_t>(hashed_string);
         }
     };

@@ -18,8 +18,8 @@ namespace resmanager {
         Cache(const Cache&) = default;
         Cache& operator=(const Cache&) = default;
 
-        Cache(Cache&& other);
-        Cache& operator=(Cache&& other);
+        Cache(Cache&& other) noexcept;
+        Cache& operator=(Cache&& other) noexcept;
 
         template<typename... Args>
         std::shared_ptr<T> load(const K id, Args&&... args);
@@ -43,13 +43,13 @@ namespace resmanager {
     };
 
     template<typename T, typename L, typename K, typename H>
-    Cache<T, L, K, H>::Cache(Cache&& other) {
+    Cache<T, L, K, H>::Cache(Cache&& other) noexcept {
         cache = std::move(other.cache);
         loader = other.loader;
     }
 
     template<typename T, typename L, typename K, typename H>
-    Cache<T, L, K, H>& Cache<T, L, K, H>::operator=(Cache&& other) {
+    Cache<T, L, K, H>& Cache<T, L, K, H>::operator=(Cache&& other) noexcept {
         cache = std::move(other.cache);
         loader = other.loader;
 
