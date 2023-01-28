@@ -10,7 +10,7 @@
 #include "hashing.h"
 
 namespace resmanager {
-    template<typename T, typename L = Loader<T>, typename K = HashedStr32, typename H = Hash<K>>
+    template<typename T, typename L = Loader<T>, typename K = HashedStr64, typename H = Hash<K>>
     class Cache {
     public:
         Cache() = default;
@@ -78,7 +78,7 @@ namespace resmanager {
 
     template<typename T, typename L, typename K, typename H>
     std::shared_ptr<T> Cache<T, L, K, H>::operator[](const K id) const {
-        return cache.at(id);
+        return cache.at(id);  // TODO is there a more efficient way?
     }
 
     template<typename T, typename L, typename K, typename H>

@@ -31,55 +31,38 @@ namespace resmanager {
         }
     }
 
-    class HashedStr32 {
+    template<typename T, typename V>
+    class HashedStr {
     public:
-        constexpr HashedStr32();
-        explicit constexpr HashedStr32(const char* string);  // TODO should be consteval, but we don't have C++20 yet
-        explicit HashedStr32(const std::string& string);
+        constexpr HashedStr();
+        explicit constexpr HashedStr(const char* string);  // TODO should be consteval, but we don't have C++20 yet
+        explicit HashedStr(const std::string& string);
 
-        constexpr operator uint32_t() const { return hash; }
-        constexpr bool operator==(const HashedStr32 other) const;
+        constexpr operator T() const { return hash; }
+        constexpr bool operator==(const HashedStr other) const;
     private:
-        const uint32_t hash;
+        const T hash;
     };
 
-    constexpr HashedStr32::HashedStr32()
+    template<typename T, typename V>
+    constexpr HashedStr<T, V>::HashedStr()
         : hash(0) {}
 
-    constexpr HashedStr32::HashedStr32(const char* string)
-        : hash(internal::fnv1a<uint32_t, internal::Variant32>(string)) {}
+    template<typename T, typename V>
+    constexpr HashedStr<T, V>::HashedStr(const char* string)
+        : hash(internal::fnv1a<T, V>(string)) {}
 
-    inline HashedStr32::HashedStr32(const std::string& string)
-        : hash(internal::fnv1a<uint32_t, internal::Variant32>(string.c_str())) {}
+    template<typename T, typename V>
+    inline HashedStr<T, V>::HashedStr(const std::string& string)
+        : hash(internal::fnv1a<T, V>(string.c_str())) {}
 
-    constexpr bool HashedStr32::operator==(const HashedStr32 other) const {
+    template<typename T, typename V>
+    constexpr bool HashedStr<T, V>::operator==(const HashedStr other) const {
         return hash == other.hash;
     }
 
-    class HashedStr64 {
-    public:
-        constexpr HashedStr64();
-        explicit constexpr HashedStr64(const char* string);
-        explicit HashedStr64(const std::string& string);
-
-        constexpr operator uint64_t() const { return hash; }
-        constexpr bool operator==(const HashedStr64 other) const;
-    private:
-        const uint64_t hash;
-    };
-
-    constexpr HashedStr64::HashedStr64()
-        : hash(0) {}
-
-    constexpr HashedStr64::HashedStr64(const char* string)
-        : hash(internal::fnv1a<uint64_t, internal::Variant64>(string)) {}
-
-    inline HashedStr64::HashedStr64(const std::string& string)
-        : hash(internal::fnv1a<uint64_t, internal::Variant64>(string.c_str())) {}
-
-    constexpr bool HashedStr64::operator==(const HashedStr64 other) const {
-        return hash == other.hash;
-    }
+    using HashedStr32 = HashedStr<uint32_t, internal::Variant32>;
+    using HashedStr64 = HashedStr<uint64_t, internal::Variant64>;
 
     namespace literals {
         constexpr HashedStr32 operator""_h(const char* string, size_t) {
@@ -92,7 +75,7 @@ namespace resmanager {
     }
 
     /* FIXME
-        might be wrong casting uint32_t to size_t
+        might be wrong casting uint32_t to size_t (64 bits)
         IT IS WRONG casting uint64_t when size_t is 32 bits in size
     */
     template<typename H>

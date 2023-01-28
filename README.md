@@ -2,5 +2,5 @@
 
 ## A tiny resource manager library written for myself
 
-It is heavily inspired by EnTT's resource management,
+It is heavily inspired by [EnTT](https://github.com/SimonMaracine/entt)'s resource management,
 which sadly doesn't fully suit my needs.
