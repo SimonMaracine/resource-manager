@@ -30,7 +30,7 @@ namespace resmanager {
         private:
             static constexpr T fnv1a(const char* string) noexcept;
 
-            const T hash;
+            T hash;
         };
 
         template<typename T, typename V>
