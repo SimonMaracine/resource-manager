@@ -31,7 +31,7 @@ int main() {
     }
 
     {
-        resmanager::Cache<Foo, resmanager::Loader<Foo>, resmanager::HashedStr32> cache;
+        resmanager::Cache<Foo, resmanager::DefaultLoader<Foo>, resmanager::HashedStr32> cache;
         auto foo = cache.load("foo"_h);
         foo->x = 40;
 
