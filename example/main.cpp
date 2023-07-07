@@ -64,7 +64,7 @@ int main() {
     // Run time hash
     const uint32_t hash5 = resmanager::HashedStr32(std::string("Hello, world!"));
 
-    // 64-bit cache
+    // 64-bit key cache
     {
         resmanager::Cache<Image> cache;
 
@@ -78,7 +78,7 @@ int main() {
         std::cout << foo2->w << '\n';
     }
 
-    // 32-bit cache
+    // 32-bit key cache
     {
         resmanager::Cache<Image, resmanager::DefaultLoader<Image>, resmanager::HashedStr32> cache;
 
