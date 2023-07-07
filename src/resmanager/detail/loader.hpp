@@ -11,7 +11,7 @@ namespace resmanager {
 
         template<typename... Args>
         ResourceType load(Args&&... args) const {
-            return R {std::forward<Args>(args)...};
+            return ResourceType(std::forward<Args>(args)...);
         }
     };
 

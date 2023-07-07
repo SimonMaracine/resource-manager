@@ -2,12 +2,11 @@
 
 #include <memory>
 #include <unordered_map>
-#include <cstdint>
 #include <cstddef>
 #include <utility>
 
-#include "loader.h"
-#include "hashing.h"
+#include "loader.hpp"
+#include "hashing.hpp"
 
 namespace resmanager {
     template<typename T, typename L = DefaultLoader<T>, typename K = HashedStr64, typename H = Hash<K>>

@@ -68,11 +68,11 @@ namespace resmanager {
 
     namespace literals {
         constexpr HashedStr32 operator""_h(const char* string, size_t) noexcept {
-            return HashedStr32 {string};
+            return HashedStr32(string);
         }
 
         constexpr HashedStr64 operator""_H(const char* string, size_t) noexcept {
-            return HashedStr64 {string};
+            return HashedStr64(string);
         }
     }
 
@@ -83,6 +83,8 @@ namespace resmanager {
     template<typename V>
     struct Hash {
         constexpr size_t operator()(V hashed_string) const noexcept {
+            static_assert(sizeof(V) <= sizeof(size_t));
+
             return static_cast<size_t>(hashed_string);
         }
     };

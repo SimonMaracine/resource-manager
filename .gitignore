@@ -1,2 +1,3 @@
-.vscode/
-example/main
+/.vscode
+example/*
+!example/main.cpp

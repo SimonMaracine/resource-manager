@@ -1,40 +1,100 @@
 #include <iostream>
+#include <string>
+#include <cstdint>
 
-#include "../src/resmanager/resmanager.h"
+#include "../src/resmanager/resmanager.hpp"
 
-struct Foo {
-    int x = 0;
+// If you have some pointer type...
+template<typename T>
+struct Bar {
+    T data {};
+};
+
+// And <<maybe>> a function like this...
+template<typename T, typename... Args>
+Bar<T> some_function_that_constructs_a_resource(Args&&...) {
+    // ...
+
+    return {};
+}
+
+// You can specialize the loader with your own pointer type
+template<typename T>
+struct resmanager::Loader<T, Bar<T>> {
+    using ResourceType = Bar<T>;
+
+    template<typename... Args>
+    ResourceType load(Args&&... args) const {
+        return some_function_that_constructs_a_resource<T>(std::forward<Args>(args)...);
+    }
+};
+
+// Some example resource type
+struct Image {
+    unsigned int w = 0;
+    unsigned int h = 0;
+    unsigned char* data = nullptr;
+
+    // ... RAII
 };
 
 int main() {
-    constexpr uint64_t hash0 = resmanager::HashedStr64 {"s"};
-
-    constexpr uint32_t hash = resmanager::HashedStr32 {};
-    constexpr uint32_t hash1 = resmanager::HashedStr32 {"b"};
-
-    std::cout << hash0 << std::endl;
-    std::cout << hash1 << std::endl;
-
     using namespace resmanager::literals;
-    const uint32_t hash2 = "Hello, Simon!"_h;
-    const uint64_t hash3 = "Hello, Simon!"_H;
-
-    const uint32_t hash4 = resmanager::HashedStr32 {std::string {"Hello, world!"}};
 
     {
-        resmanager::Cache<Foo> cache;
-
+        resmanager::Cache<int, resmanager::Loader<int, Bar<int>>> cache;
         auto foo = cache.load("foo"_H);
-        foo->x = 20;
-
-        std::cout << foo->x << std::endl;
+        std::cout << foo.data << '\n';
     }
 
-    {
-        resmanager::Cache<Foo, resmanager::DefaultLoader<Foo>, resmanager::HashedStr32> cache;
-        auto foo = cache.load("foo"_h);
-        foo->x = 40;
+    // Default constructor
+    constexpr uint32_t hash0 = resmanager::HashedStr32();
 
-        std::cout << foo->x << std::endl;
+    // Compile time hashes
+    constexpr uint64_t hash1 = resmanager::HashedStr64("s");
+    constexpr uint32_t hash2 = resmanager::HashedStr32("b");
+
+    std::cout << hash1 << '\n';
+    std::cout << hash2 << '\n';
+
+    // Compile time hashes with string literals
+    const uint32_t hash3 = "Hello, Simon!"_h;
+    const uint64_t hash4 = "Hello, Simon!"_H;
+
+    // Run time hash
+    const uint32_t hash5 = resmanager::HashedStr32(std::string("Hello, world!"));
+
+    // 64-bit cache
+    {
+        resmanager::Cache<Image> cache;
+
+        // `foo` created here
+        auto foo = cache.load("foo"_H);
+        foo->w = 400;
+        std::cout << foo->w << '\n';
+
+        // `foo` only referenced here
+        auto foo2 = cache.load("foo"_H);
+        std::cout << foo2->w << '\n';
+    }
+
+    // 32-bit cache
+    {
+        resmanager::Cache<Image, resmanager::DefaultLoader<Image>, resmanager::HashedStr32> cache;
+
+        // `foo` created here
+        auto foo = cache.load("foo"_h);
+
+        // `bar` created here
+        auto bar = cache.load("bar"_h);
+        bar->w = 800;
+        std::cout << bar->w << '\n';
+
+        // `bar` only referenced here
+        auto bar2 = cache.load("bar"_h);
+        std::cout << bar2->w << '\n';
+
+        // `foo` deleted here; local reference is still valid
+        cache.release("foo"_h);
     }
 }
