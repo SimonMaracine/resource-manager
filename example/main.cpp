@@ -2,7 +2,7 @@
 #include <string>
 #include <cstdint>
 
-#include "../src/resmanager/resmanager.hpp"
+#include "resmanager/resmanager.hpp"
 
 // If you have some pointer type...
 template<typename T>
@@ -48,7 +48,7 @@ int main() {
     }
 
     // Default constructor
-    constexpr uint32_t hash0 = resmanager::HashedStr32();
+    [[maybe_unused]] constexpr uint32_t hash0 = resmanager::HashedStr32();
 
     // Compile time hashes
     constexpr uint64_t hash1 = resmanager::HashedStr64("s");
@@ -58,11 +58,11 @@ int main() {
     std::cout << hash2 << '\n';
 
     // Compile time hashes with string literals
-    const uint32_t hash3 = "Hello, Simon!"_h;
-    const uint64_t hash4 = "Hello, Simon!"_H;
+    [[maybe_unused]] const uint32_t hash3 = "Hello, Simon!"_h;
+    [[maybe_unused]] const uint64_t hash4 = "Hello, Simon!"_H;
 
     // Run time hash
-    const uint32_t hash5 = resmanager::HashedStr32(std::string("Hello, world!"));
+    [[maybe_unused]] const uint32_t hash5 = resmanager::HashedStr32(std::string("Hello, world!"));
 
     // 64-bit key cache
     {
