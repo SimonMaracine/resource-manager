@@ -3,7 +3,8 @@
 ## A tiny resource manager library written for myself
 
 It is heavily inspired by [EnTT](https://github.com/SimonMaracine/entt)'s resource management,
-which sadly doesn't fully suit my needs. That's why I wrote my own library.
+which sadly doesn't fully suit my needs. That's why I wrote my own library. It requires at least
+C++17.
 
 This library is header-only. But you can still use CMake to cleanly integrate it into your CMake
 project. Type this into the command line to add the repository:
