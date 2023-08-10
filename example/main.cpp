@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <utility>
 
 #include "resmanager/resmanager.hpp"
 
@@ -48,21 +49,21 @@ int main() {
     }
 
     // Default constructor
-    [[maybe_unused]] constexpr uint32_t hash0 = resmanager::HashedStr32();
+    [[maybe_unused]] constexpr std::uint32_t hash0 = resmanager::HashedStr32();
 
     // Compile time hashes
-    constexpr uint64_t hash1 = resmanager::HashedStr64("s");
-    constexpr uint32_t hash2 = resmanager::HashedStr32("b");
+    constexpr std::uint64_t hash1 = resmanager::HashedStr64("s");
+    constexpr std::uint32_t hash2 = resmanager::HashedStr32("b");
 
     std::cout << hash1 << '\n';
     std::cout << hash2 << '\n';
 
     // Compile time hashes with string literals
-    [[maybe_unused]] const uint32_t hash3 = "Hello, Simon!"_h;
-    [[maybe_unused]] const uint64_t hash4 = "Hello, Simon!"_H;
+    [[maybe_unused]] const std::uint32_t hash3 = "Hello, Simon!"_h;
+    [[maybe_unused]] const std::uint64_t hash4 = "Hello, Simon!"_H;
 
     // Run time hash
-    [[maybe_unused]] const uint32_t hash5 = resmanager::HashedStr32(std::string("Hello, world!"));
+    [[maybe_unused]] const std::uint32_t hash5 = resmanager::HashedStr32(std::string("Hello, world!"));
 
     // 64-bit key cache
     {

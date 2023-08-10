@@ -34,7 +34,7 @@ namespace resmanager {
         void merge_replace(Cache&& other);
         void clear();
 
-        size_t size() const { return cache.size(); }
+        std::size_t size() const { return cache.size(); }
         bool empty() const { return cache.empty(); }
     private:
         L loader;

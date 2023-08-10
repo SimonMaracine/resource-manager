@@ -9,13 +9,13 @@
 namespace resmanager {
     namespace internal {
         struct Variant32 {
-            static constexpr uint32_t FNV_OFFSET_BASIS = 2166136261u;
-            static constexpr uint32_t FNV_PRIME = 16777619u;
+            static constexpr std::uint32_t FNV_OFFSET_BASIS = 2166136261u;
+            static constexpr std::uint32_t FNV_PRIME = 16777619u;
         };
 
         struct Variant64 {
-            static constexpr uint64_t FNV_OFFSET_BASIS = 14695981039346656037u;
-            static constexpr uint64_t FNV_PRIME = 1099511628211u;
+            static constexpr std::uint64_t FNV_OFFSET_BASIS = 14695981039346656037u;
+            static constexpr std::uint64_t FNV_PRIME = 1099511628211u;
         };
 
         template<typename T, typename V>
@@ -54,8 +54,8 @@ namespace resmanager {
         constexpr T HashedStr<T, V>::fnv1a(const char* string) noexcept {
             T hash = V::FNV_OFFSET_BASIS;
 
-            for (size_t i = 0; string[i] != '\0'; i++) {
-                hash ^= static_cast<uint8_t>(string[i]);
+            for (std::size_t i = 0; string[i] != '\0'; i++) {
+                hash ^= static_cast<std::uint8_t>(string[i]);
                 hash *= V::FNV_PRIME;
             }
 
@@ -63,29 +63,29 @@ namespace resmanager {
         }
     }
 
-    using HashedStr32 = internal::HashedStr<uint32_t, internal::Variant32>;
-    using HashedStr64 = internal::HashedStr<uint64_t, internal::Variant64>;
+    using HashedStr32 = internal::HashedStr<std::uint32_t, internal::Variant32>;
+    using HashedStr64 = internal::HashedStr<std::uint64_t, internal::Variant64>;
 
     namespace literals {
-        constexpr HashedStr32 operator""_h(const char* string, size_t) noexcept {
+        constexpr HashedStr32 operator""_h(const char* string, std::size_t) noexcept {
             return HashedStr32(string);
         }
 
-        constexpr HashedStr64 operator""_H(const char* string, size_t) noexcept {
+        constexpr HashedStr64 operator""_H(const char* string, std::size_t) noexcept {
             return HashedStr64(string);
         }
     }
 
     /* FIXME
-        might be wrong casting uint32_t to size_t (64 bits)
-        IT IS WRONG casting uint64_t when size_t is 32 bits in size
+        might be wrong casting uint32_t to std::size_t (64 bits)
+        IT IS WRONG casting uint64_t when std::size_t is 32 bits in size
     */
     template<typename V>
     struct Hash {
-        constexpr size_t operator()(V hashed_string) const noexcept {
-            static_assert(sizeof(V) <= sizeof(size_t));
+        constexpr std::size_t operator()(V hashed_string) const noexcept {
+            static_assert(sizeof(V) <= sizeof(std::size_t));
 
-            return static_cast<size_t>(hashed_string);
+            return static_cast<std::size_t>(hashed_string);
         }
     };
 }
