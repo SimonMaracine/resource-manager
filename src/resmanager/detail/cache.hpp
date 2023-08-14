@@ -20,21 +20,37 @@ namespace resmanager {
         Cache(Cache&& other) noexcept;
         Cache& operator=(Cache&& other) noexcept;
 
+        // If already present, return the resource directly, otherwise load it
         template<typename... Args>
         typename L::ResourceType load(const K id, Args&&... args);
 
+        // Load the resource and replace the old one, if already present
         template<typename... Args>
         typename L::ResourceType force_load(const K id, Args&&... args);
 
+        // Get the resource
         typename L::ResourceType operator[](const K id) const;
+
+        // Check if resource is present
         bool contains(const K id) const;
+
+        // Release and return thre resource
         typename L::ResourceType release(const K id);
 
-        void merge(Cache&& other);
-        void merge_replace(Cache&& other);
+        // Merge the other cache into this cache
+        void merge(Cache& other);
+
+        // Merge the other cache into this cache
+        // If the two caches contain the same resource, then the other will replace this
+        void merge_replace(const Cache& other);
+
+        // Clear the cache
         void clear();
 
+        // Get the size of the cache
         std::size_t size() const { return cache.size(); }
+
+        // Check if the cache is empty
         bool empty() const { return cache.empty(); }
     private:
         L loader;
@@ -100,18 +116,14 @@ namespace resmanager {
     }
 
     template<typename T, typename L, typename K, typename H>
-    void Cache<T, L, K, H>::merge(Cache&& other) {
-        cache.merge(std::move(other.cache));
+    void Cache<T, L, K, H>::merge(Cache& other) {
+        cache.merge(other.cache);
     }
 
     template<typename T, typename L, typename K, typename H>
-    void Cache<T, L, K, H>::merge_replace(Cache&& other) {
-        for (auto& [other_id, _] : other.cache) {
-            if (cache.find(other_id) != cache.end()) {
-                cache[other_id] = std::move(other.cache[other_id]);
-            } else {
-                cache[other_id] = other.cache[other_id];
-            }
+    void Cache<T, L, K, H>::merge_replace(const Cache& other) {
+        for (const auto& [other_id, _] : other.cache) {
+            cache[other_id] = other.cache.at(other_id);
         }
     }
 
