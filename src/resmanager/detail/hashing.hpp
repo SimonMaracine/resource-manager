@@ -35,7 +35,7 @@ namespace resmanager {
 
         template<typename T, typename V>
         constexpr HashedStr<T, V>::HashedStr() noexcept
-            : hash(0) {}
+            : hash(0u) {}
 
         template<typename T, typename V>
         constexpr HashedStr<T, V>::HashedStr(const char* string) noexcept
@@ -55,7 +55,7 @@ namespace resmanager {
             T hash = V::FNV_OFFSET_BASIS;
 
             for (std::size_t i = 0; string[i] != '\0'; i++) {
-                hash ^= static_cast<std::uint8_t>(string[i]);
+                hash ^= static_cast<T>(string[i]);
                 hash *= V::FNV_PRIME;
             }
 

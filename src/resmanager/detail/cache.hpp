@@ -34,7 +34,7 @@ namespace resmanager {
         // Check if resource is present
         bool contains(const K id) const;
 
-        // Release and return thre resource
+        // Release and return the resource
         typename L::ResourceType release(const K id);
 
         // Merge the other cache into this cache
@@ -53,8 +53,8 @@ namespace resmanager {
         // Check if the cache is empty
         bool empty() const { return cache.empty(); }
     private:
-        L loader;
         std::unordered_map<K, typename L::ResourceType, H> cache;
+        L loader;
     };
 
     template<typename T, typename L, typename K, typename H>

@@ -5,13 +5,13 @@
 
 #include "resmanager/resmanager.hpp"
 
-// If you have some pointer type...
+// If you have some smart pointer type...
 template<typename T>
 struct Bar {
     T data {};
 };
 
-// And <<maybe>> a function like this...
+// And maybe a function like this...
 template<typename T, typename... Args>
 Bar<T> some_function_that_constructs_a_resource(Args&&...) {
     // ...
@@ -30,7 +30,7 @@ struct resmanager::Loader<T, Bar<T>> {
     }
 };
 
-// Some example resource type
+// Some example resource
 struct Image {
     unsigned int w = 0;
     unsigned int h = 0;
