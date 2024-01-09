@@ -12,40 +12,86 @@ namespace resmanager {
     template<typename T, typename L = DefaultLoader<T>, typename K = HashedStr64, typename H = Hash<K>>
     class Cache {
     public:
+        using ResourceType = typename L::ResourceType;
+
         Cache() = default;
         ~Cache() = default;
         Cache(const Cache&) = default;
         Cache& operator=(const Cache&) = default;
 
-        Cache(Cache&& other) noexcept;
-        Cache& operator=(Cache&& other) noexcept;
+        Cache(Cache&& other) noexcept {
+            cache = std::move(other.cache);
+        }
+
+        Cache& operator=(Cache&& other) noexcept {
+            cache = std::move(other.cache);
+
+            return *this;
+        }
 
         // If already present, return the resource directly, otherwise load it
         template<typename... Args>
-        typename L::ResourceType load(const K id, Args&&... args);
+        ResourceType load(const K id, Args&&... args) {
+            if (auto iter = cache.find(id); iter != cache.end()) {
+                return iter->second;
+            } else {
+                const L loader {};
+                ResourceType resource {loader(std::forward<Args>(args)...)};
+                cache[id] = resource;
+
+                return resource;
+            }
+        }
 
         // Load the resource and replace the old one, if already present
         template<typename... Args>
-        typename L::ResourceType force_load(const K id, Args&&... args);
+        ResourceType force_load(const K id, Args&&... args) {
+            const L loader {};
+            ResourceType resource {loader(std::forward<Args>(args)...)};
+            cache[id] = resource;
+
+            return resource;
+        }
 
         // Get the resource
-        typename L::ResourceType operator[](const K id) const;
+        ResourceType operator[](const K id) const {
+            return cache.at(id);
+        }
 
-        // Check if resource is present
-        bool contains(const K id) const;
+        // Check if the resource is present
+        bool contains(const K id) const {
+            return cache.count(id) == 1;
+        }
 
         // Release and return the resource
-        typename L::ResourceType release(const K id);
+        ResourceType release(const K id) {
+            if (auto iter = cache.find(id); iter != cache.end()) {
+                ResourceType resource {std::move(iter->second)};
+                cache.erase(id);
+
+                return resource;
+            }
+
+            return nullptr;
+        }
 
         // Merge the other cache into this cache
-        void merge(Cache& other);
+        void merge(Cache& other) {
+            cache.merge(other.cache);
+        }
 
         // Merge the other cache into this cache
         // If the two caches contain the same resource, then the other will replace this
-        void merge_replace(const Cache& other);
+        void merge_replace(const Cache& other) {
+            for (const auto& [other_id, _] : other.cache) {
+                cache[other_id] = other.cache.at(other_id);
+            }
+        }
 
         // Clear the cache
-        void clear();
+        void clear() {
+            cache.clear();
+        }
 
         // Get the size of the cache
         std::size_t size() const { return cache.size(); }
@@ -53,82 +99,6 @@ namespace resmanager {
         // Check if the cache is empty
         bool empty() const { return cache.empty(); }
     private:
-        std::unordered_map<K, typename L::ResourceType, H> cache;
-        L loader;
+        std::unordered_map<K, ResourceType, H> cache;
     };
-
-    template<typename T, typename L, typename K, typename H>
-    Cache<T, L, K, H>::Cache(Cache&& other) noexcept {
-        cache = std::move(other.cache);
-        loader = other.loader;
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    Cache<T, L, K, H>& Cache<T, L, K, H>::operator=(Cache&& other) noexcept {
-        cache = std::move(other.cache);
-        loader = other.loader;
-
-        return *this;
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    template<typename... Args>
-    typename L::ResourceType Cache<T, L, K, H>::load(const K id, Args&&... args) {
-        if (auto iter = cache.find(id); iter != cache.end()) {
-            return iter->second;
-        } else {
-            typename L::ResourceType resource = loader.load(std::forward<Args>(args)...);
-            cache[id] = resource;
-
-            return resource;
-        }
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    template<typename... Args>
-    typename L::ResourceType Cache<T, L, K, H>::force_load(const K id, Args&&... args) {
-        typename L::ResourceType resource = loader.load(std::forward<Args>(args)...);
-        cache[id] = resource;
-
-        return resource;
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    typename L::ResourceType Cache<T, L, K, H>::operator[](const K id) const {
-        return cache.at(id);
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    bool Cache<T, L, K, H>::contains(const K id) const {
-        return cache.count(id) == 1;
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    typename L::ResourceType Cache<T, L, K, H>::release(const K id) {
-        if (auto iter = cache.find(id); iter != cache.end()) {
-            typename L::ResourceType resource = std::move(iter->second);
-            cache.erase(id);
-
-            return resource;
-        }
-
-        return nullptr;
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    void Cache<T, L, K, H>::merge(Cache& other) {
-        cache.merge(other.cache);
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    void Cache<T, L, K, H>::merge_replace(const Cache& other) {
-        for (const auto& [other_id, _] : other.cache) {
-            cache[other_id] = other.cache.at(other_id);
-        }
-    }
-
-    template<typename T, typename L, typename K, typename H>
-    void Cache<T, L, K, H>::clear() {
-        cache.clear();
-    }
 }

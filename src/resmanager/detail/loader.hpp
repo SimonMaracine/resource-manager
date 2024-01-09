@@ -11,7 +11,7 @@ namespace resmanager {
         using ResourceType = R;
 
         template<typename... Args>
-        ResourceType load(Args&&... args) const {
+        ResourceType operator()(Args&&... args) const {
             return ResourceType(std::forward<Args>(args)...);
         }
     };
@@ -22,7 +22,7 @@ namespace resmanager {
         using ResourceType = std::shared_ptr<T>;
 
         template<typename... Args>
-        ResourceType load(Args&&... args) const {
+        ResourceType operator()(Args&&... args) const {
             return std::make_shared<T>(std::forward<Args>(args)...);
         }
     };

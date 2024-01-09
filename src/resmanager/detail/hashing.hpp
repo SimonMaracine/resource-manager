@@ -3,89 +3,79 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include <functional>
 
 // Implements the Fowler-Noll-Vo hash algorithm, or more exactly FNV-1a
 
 namespace resmanager {
     namespace internal {
         struct Variant32 {
-            static constexpr std::uint32_t FNV_OFFSET_BASIS = 2166136261u;
-            static constexpr std::uint32_t FNV_PRIME = 16777619u;
+            using Type = std::uint32_t;
+            static constexpr std::uint32_t FNV_OFFSET_BASIS {2166136261u};
+            static constexpr std::uint32_t FNV_PRIME {16777619u};
         };
 
         struct Variant64 {
-            static constexpr std::uint64_t FNV_OFFSET_BASIS = 14695981039346656037u;
-            static constexpr std::uint64_t FNV_PRIME = 1099511628211u;
+            using Type = std::uint64_t;
+            static constexpr std::uint64_t FNV_OFFSET_BASIS {14695981039346656037ul};
+            static constexpr std::uint64_t FNV_PRIME {1099511628211ul};
         };
 
-        template<typename T, typename V>
+        template<typename V>
         class HashedStr {
         public:
-            constexpr HashedStr() noexcept;
-            explicit constexpr HashedStr(const char* string) noexcept;  // TODO should be consteval, but we don't have C++20 yet
-            explicit HashedStr(const std::string& string) noexcept;
+            using Type = typename V::Type;
 
-            constexpr operator T() const noexcept { return hash; }
-            constexpr bool operator==(const HashedStr other) const noexcept;
+            constexpr HashedStr() noexcept
+                : hash(0u) {}
+
+            explicit constexpr HashedStr(const char* const string) noexcept
+                : hash(fnv1a(string)) {}  // TODO maybe should be consteval: soon
+
+            explicit HashedStr(const std::string& string) noexcept
+                : hash(fnv1a(string.c_str())) {}
+
+            constexpr operator Type() const noexcept { return hash; }
+            constexpr bool operator==(const HashedStr other) const noexcept { return hash == other.hash; }
         private:
-            static constexpr T fnv1a(const char* string) noexcept;
+            static constexpr Type fnv1a(const char* const string) noexcept {
+                Type hash {V::FNV_OFFSET_BASIS};
 
-            T hash;
-        };
+                for (std::size_t i {0u}; string[i] != '\0'; i++) {
+                    hash ^= static_cast<Type>(string[i]);
+                    hash *= V::FNV_PRIME;
+                }
 
-        template<typename T, typename V>
-        constexpr HashedStr<T, V>::HashedStr() noexcept
-            : hash(0u) {}
-
-        template<typename T, typename V>
-        constexpr HashedStr<T, V>::HashedStr(const char* string) noexcept
-            : hash(fnv1a(string)) {}
-
-        template<typename T, typename V>
-        inline HashedStr<T, V>::HashedStr(const std::string& string) noexcept
-            : hash(fnv1a(string.c_str())) {}
-
-        template<typename T, typename V>
-        constexpr bool HashedStr<T, V>::operator==(const HashedStr other) const noexcept {
-            return hash == other.hash;
-        }
-
-        template<typename T, typename V>
-        constexpr T HashedStr<T, V>::fnv1a(const char* string) noexcept {
-            T hash = V::FNV_OFFSET_BASIS;
-
-            for (std::size_t i = 0; string[i] != '\0'; i++) {
-                hash ^= static_cast<T>(string[i]);
-                hash *= V::FNV_PRIME;
+                return hash;
             }
 
-            return hash;
-        }
+            Type hash;
+        };
     }
 
-    using HashedStr32 = internal::HashedStr<std::uint32_t, internal::Variant32>;
-    using HashedStr64 = internal::HashedStr<std::uint64_t, internal::Variant64>;
+    using HashedStr32 = internal::HashedStr<internal::Variant32>;
+    using HashedStr64 = internal::HashedStr<internal::Variant64>;
 
     namespace literals {
-        constexpr HashedStr32 operator""_h(const char* string, std::size_t) noexcept {
+        constexpr HashedStr32 operator""_h(const char* const string, std::size_t) noexcept {
             return HashedStr32(string);
         }
 
-        constexpr HashedStr64 operator""_H(const char* string, std::size_t) noexcept {
+        constexpr HashedStr64 operator""_H(const char* const string, std::size_t) noexcept {
             return HashedStr64(string);
         }
     }
 
-    /* FIXME
-        might be wrong casting uint32_t to std::size_t (64 bits)
-        IT IS WRONG casting uint64_t when std::size_t is 32 bits in size
-    */
     template<typename V>
     struct Hash {
-        constexpr std::size_t operator()(V hashed_string) const noexcept {
+        constexpr std::size_t operator()(const V hashed_string) const noexcept {
             static_assert(sizeof(V) <= sizeof(std::size_t));
 
-            return static_cast<std::size_t>(hashed_string);
+            if constexpr (sizeof(V) < sizeof(std::size_t)) {  // Using 32-bit hashes in a 64-bit environment
+                return std::hash<typename V::Type>()(hashed_string);
+            } else {
+                return static_cast<std::size_t>(hashed_string);  // Using 64-bit hashes
+            }
         }
     };
 }
