@@ -60,7 +60,7 @@ namespace resmanager {
 
         // Check if the resource is present
         bool contains(const K id) const {
-            return cache.count(id) == 1;
+            return cache.find(id) != cache.cend();
         }
 
         // Release and return the resource
@@ -89,15 +89,19 @@ namespace resmanager {
         }
 
         // Clear the cache
-        void clear() {
+        void clear() noexcept {
             cache.clear();
         }
 
         // Get the size of the cache
-        std::size_t size() const { return cache.size(); }
+        std::size_t size() const noexcept {
+            return cache.size();
+        }
 
         // Check if the cache is empty
-        bool empty() const { return cache.empty(); }
+        bool empty() const noexcept {
+            return cache.empty();
+        }
     private:
         std::unordered_map<K, ResourceType, H> cache;
     };
