@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <unordered_map>
 #include <cstddef>
 #include <utility>
@@ -14,22 +13,7 @@ namespace resmanager {
     public:
         using ResourceType = typename L::ResourceType;
 
-        Cache() = default;
-        ~Cache() = default;
-        Cache(const Cache&) = default;
-        Cache& operator=(const Cache&) = default;
-
-        Cache(Cache&& other) noexcept {
-            cache = std::move(other.cache);
-        }
-
-        Cache& operator=(Cache&& other) noexcept {
-            cache = std::move(other.cache);
-
-            return *this;
-        }
-
-        // If already present, return the resource directly, otherwise load it
+        // If already present, return the resource directly, otherwise load and then return it
         template<typename... Args>
         ResourceType load(const K id, Args&&... args) {
             if (auto iter = cache.find(id); iter != cache.end()) {
@@ -53,9 +37,9 @@ namespace resmanager {
             return resource;
         }
 
-        // Get the resource
+        // Get the resource; throws std::out_of_range, if resource is not found
         ResourceType operator[](const K id) const {
-            return cache.at(id);
+            return cache.at(id);  // TODO maybe handle exception here and return null
         }
 
         // Check if the resource is present

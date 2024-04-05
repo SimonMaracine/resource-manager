@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
-#include <functional>
+#include <functional>  // For std::hash
 
 // Implements the Fowler-Noll-Vo hash algorithm, or more exactly FNV-1a
 
