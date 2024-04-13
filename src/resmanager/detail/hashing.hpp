@@ -2,8 +2,7 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <string>
-#include <functional>  // For std::hash
+#include <string>  // std::hash
 
 // Implements the Fowler-Noll-Vo hash algorithm, or more exactly FNV-1a
 
@@ -53,7 +52,10 @@ namespace resmanager {
         };
     }
 
+    // 32-bit hash
     using HashedStr32 = internal::HashedStr<internal::Variant32>;
+
+    // 64-bit hash
     using HashedStr64 = internal::HashedStr<internal::Variant64>;
 
     namespace literals {
@@ -66,6 +68,7 @@ namespace resmanager {
         }
     }
 
+    // Pass-through hash functor, used as a default by cache
     template<typename V>
     struct Hash {
         constexpr std::size_t operator()(const V hashed_string) const noexcept {

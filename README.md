@@ -10,13 +10,13 @@ This library is header-only. But you can still use CMake to cleanly integrate it
 project. Type this into the command line to add the repository:
 
 ```text
-git submodule add https://github.com/SimonMaracine/resource-manager <path/to/the/submodule>
+git submodule add https://github.com/SimonMaracine/resource-manager <path/to/submodule>
 ```
 
 Then, in `CMakeLists.txt` write:
 
 ```cmake
-add_subdirectory(<path/to/the/submodule>)
+add_subdirectory(<path/to/submodule>)
 target_link_libraries(<target> PRIVATE resmanager)
 ```
 
