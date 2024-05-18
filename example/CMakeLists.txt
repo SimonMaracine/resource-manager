@@ -5,7 +5,7 @@ add_executable(example "main.cpp")
 target_link_libraries(example PRIVATE resmanager)
 
 if(UNIX)
-    target_compile_options(example PRIVATE "-Wall" "-Wextra" "-Wpedantic")
+    target_compile_options(example PRIVATE "-Wall" "-Wextra" "-Wpedantic" "-Wconversion")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(example PRIVATE "/W3")
 else()

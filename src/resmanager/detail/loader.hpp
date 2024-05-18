@@ -6,6 +6,7 @@
 namespace resmanager {
     // Generic loader
     // The resource type must be some sort of smart pointer
+    // and it must be constructible from nullptr
     template<typename T, typename R>
     struct Loader {
         using ResourceType = R;

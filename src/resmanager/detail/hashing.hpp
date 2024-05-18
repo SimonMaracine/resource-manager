@@ -10,14 +10,14 @@ namespace resmanager {
     namespace internal {
         struct Variant32 {
             using Type = std::uint32_t;
-            static constexpr std::uint32_t FNV_OFFSET_BASIS {2166136261u};
-            static constexpr std::uint32_t FNV_PRIME {16777619u};
+            static constexpr std::uint32_t FNV_OFFSET_BASIS {2166136261};
+            static constexpr std::uint32_t FNV_PRIME {16777619};
         };
 
         struct Variant64 {
             using Type = std::uint64_t;
-            static constexpr std::uint64_t FNV_OFFSET_BASIS {14695981039346656037ul};
-            static constexpr std::uint64_t FNV_PRIME {1099511628211ul};
+            static constexpr std::uint64_t FNV_OFFSET_BASIS {14695981039346656037u};
+            static constexpr std::uint64_t FNV_PRIME {1099511628211};
         };
 
         template<typename V>
@@ -26,7 +26,7 @@ namespace resmanager {
             using Type = typename V::Type;
 
             constexpr HashedStr() noexcept
-                : hash(0u) {}
+                : hash(0) {}
 
             explicit constexpr HashedStr(const char* const string) noexcept
                 : hash(fnv1a(string)) {}  // TODO maybe should be consteval: soon
@@ -40,7 +40,7 @@ namespace resmanager {
             static constexpr Type fnv1a(const char* const string) noexcept {
                 Type hash {V::FNV_OFFSET_BASIS};
 
-                for (std::size_t i {0u}; string[i] != '\0'; i++) {
+                for (std::size_t i {0}; string[i] != '\0'; i++) {
                     hash ^= static_cast<Type>(string[i]);
                     hash *= V::FNV_PRIME;
                 }
