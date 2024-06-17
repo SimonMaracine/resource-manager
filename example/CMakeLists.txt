@@ -6,7 +6,7 @@ target_link_libraries(example PRIVATE resmanager)
 
 if(UNIX)
     target_compile_options(example PRIVATE "-Wall" "-Wextra" "-Wpedantic" "-Wconversion")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif(MSVC)
     target_compile_options(example PRIVATE "/W4")
 else()
     message(WARNING "Warnings are not enabled")

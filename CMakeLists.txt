@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
-option(RESMANAGER_BUILD_EXAMPLE "Enable building example or not" OFF)
-
 project("resmanager" LANGUAGES CXX)
+
+option(RESMANAGER_BUILD_EXAMPLE "Enable building example or not" OFF)
 
 add_library(resmanager INTERFACE
     "src/resmanager/detail/cache.hpp"
