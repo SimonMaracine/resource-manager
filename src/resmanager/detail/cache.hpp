@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <cstddef>
 #include <utility>
+#include <type_traits>
 
 #include "loader.hpp"
 #include "hashing.hpp"
@@ -11,42 +12,42 @@ namespace resmanager {
     template<typename T, typename L = DefaultLoader<T>, typename K = HashedStr64, typename H = Hash<K>>
     class Cache {
     public:
-        using ResourceType = typename L::ResourceType;
+        using ResourcePointerType = typename L::ResourcePointerType;
+
+        static_assert(std::is_default_constructible_v<ResourcePointerType>);
+        static_assert(std::is_copy_constructible_v<ResourcePointerType>);
+        static_assert(std::is_copy_assignable_v<ResourcePointerType>);
 
         // If already present, return the resource directly, otherwise load and then return it
         template<typename... Args>
-        ResourceType load(const K id, Args&&... args) {
+        ResourcePointerType load(const K id, Args&&... args) {
             return load_check(id, std::forward<Args>(args)...).first;
         }
 
         // If already present, return the resource directly, otherwise load and then return it
         // Also return true if the resource was already in the cache, false otherwise
         template<typename... Args>
-        std::pair<ResourceType, bool> load_check(const K id, Args&&... args) {
+        std::pair<ResourcePointerType, bool> load_check(const K id, Args&&... args) {
             if (auto iter = cache.find(id); iter != cache.end()) {
                 return std::make_pair(iter->second, true);
             } else {
-                const L loader {};
-                ResourceType resource {loader(std::forward<Args>(args)...)};
-                cache[id] = resource;
-
-                return std::make_pair(resource, false);
+                return std::make_pair(force_load(id, std::forward<Args>(args)...), false);
             }
         }
 
-        // Load the resource and replace the old one, if already present
+        // Just load the resource, replacing the old one, if already present
         template<typename... Args>
-        ResourceType force_load(const K id, Args&&... args) {
+        ResourcePointerType force_load(const K id, Args&&... args) {
             const L loader {};
-            ResourceType resource {loader(std::forward<Args>(args)...)};
+            ResourcePointerType resource {loader(std::forward<Args>(args)...)};
             cache[id] = resource;
 
             return resource;
         }
 
-        // Get the resource; throws std::out_of_range, if resource is not found
-        ResourceType operator[](const K id) const {
-            return cache.at(id);  // TODO maybe handle exception here and return null
+        // Get the resource; throws std::out_of_range, if the resource is not in the cache
+        ResourcePointerType get(const K id) const {
+            return cache.at(id);
         }
 
         // Check if the resource is present
@@ -54,16 +55,12 @@ namespace resmanager {
             return cache.find(id) != cache.cend();
         }
 
-        // Release and return the resource
-        ResourceType release(const K id) {
-            if (auto iter = cache.find(id); iter != cache.end()) {
-                ResourceType resource {std::move(iter->second)};
-                cache.erase(id);
+        // Release and return the resource; throws std::out_of_range, if the resource is not in the cache
+        ResourcePointerType release(const K id) {
+            ResourcePointerType resource {cache.at(id)};
+            cache.erase(id);
 
-                return resource;
-            }
-
-            return nullptr;
+            return resource;
         }
 
         // Merge the other cache into this cache
@@ -94,6 +91,6 @@ namespace resmanager {
             return cache.empty();
         }
     private:
-        std::unordered_map<K, ResourceType, H> cache;
+        std::unordered_map<K, ResourcePointerType, H> cache;
     };
 }

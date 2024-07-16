@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <utility>
 
-#include "resmanager/resmanager.hpp"
+#include <resmanager/resmanager.hpp>
 
 // If you have some smart pointer type...
 template<typename T>
@@ -22,15 +22,15 @@ Bar<T> some_function_that_constructs_a_resource(Args&&...) {
 // You can specialize the loader with your own pointer type
 template<typename T>
 struct resmanager::Loader<T, Bar<T>> {
-    using ResourceType = Bar<T>;
+    using ResourcePointerType = Bar<T>;
 
     template<typename... Args>
-    ResourceType operator()(Args&&... args) const {
+    ResourcePointerType operator()(Args&&... args) const {
         return some_function_that_constructs_a_resource<T>(std::forward<Args>(args)...);
     }
 };
 
-// Some example resource
+// Some resource
 struct Image {
     unsigned int w {0};
     unsigned int h {0};
@@ -44,7 +44,7 @@ int main() {
 
     {
         resmanager::Cache<int, resmanager::Loader<int, Bar<int>>> cache;
-        auto foo {cache.load("foo"_H)};
+        const auto foo {cache.load("foo"_H)};
         std::cout << foo.data << '\n';
     }
 
@@ -70,12 +70,12 @@ int main() {
         resmanager::Cache<Image> cache;
 
         // `foo` created here
-        auto foo {cache.load("foo"_H)};
+        const auto foo {cache.load("foo"_H)};
         foo->w = 400;
         std::cout << foo->w << '\n';
 
         // `foo` only referenced here
-        auto foo2 {cache.load("foo"_H)};
+        const auto foo2 {cache.load("foo"_H)};
         std::cout << foo2->w << '\n';
     }
 
@@ -84,15 +84,15 @@ int main() {
         resmanager::Cache<Image, resmanager::DefaultLoader<Image>, resmanager::HashedStr32> cache;
 
         // `foo` created here
-        auto foo {cache.load("foo"_h)};
+        const auto foo {cache.load("foo"_h)};
 
         // `bar` created here
-        auto bar {cache.load("bar"_h)};
+        const auto bar {cache.load("bar"_h)};
         bar->w = 800;
         std::cout << bar->w << '\n';
 
         // `bar` only referenced here
-        auto bar2 {cache.load("bar"_h)};
+        const auto bar2 {cache.load("bar"_h)};
         std::cout << bar2->w << '\n';
 
         // `foo` deleted here; local reference is still valid
