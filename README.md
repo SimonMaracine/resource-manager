@@ -3,7 +3,7 @@
 ## A tiny resource manager library written for myself
 
 It is heavily inspired by [EnTT](https://github.com/skypjack/entt)'s resource management,
-which sadly doesn't fully suit my needs. That's why I wrote my own library. I tested it on `GCC 13.2`
+which sadly doesn't fully suit my needs. That's why I wrote my own library. I tested it on `GCC 14.1`
 and `MSVC 19.39`. It requires at least `C++17`.
 
 ## Usage
@@ -28,6 +28,6 @@ And to build the example program:
 set(RESMANAGER_BUILD_EXAMPLE ON)
 ```
 
-Check out `example/main.cpp` for some examples.
+Check out `example/main.cpp` for some examples. Read the source files for some documentation.
 
 Development takes place on the `main` branch. `stable` is for actual use.

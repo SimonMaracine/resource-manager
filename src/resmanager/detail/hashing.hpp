@@ -58,6 +58,7 @@ namespace resmanager {
     // 64-bit hash
     using HashedStr64 = internal::HashedStr<internal::Variant64>;
 
+    // Used to more easily convert string literals to hashes
     namespace literals {
         constexpr HashedStr32 operator""_h(const char* const string, std::size_t) noexcept {
             return HashedStr32(string);

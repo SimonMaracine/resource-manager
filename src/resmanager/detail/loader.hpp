@@ -28,6 +28,7 @@ namespace resmanager {
         }
     };
 
+    // Used by default by the cache
     template<typename T>
     using DefaultLoader = Loader<T, std::shared_ptr<T>>;
 }

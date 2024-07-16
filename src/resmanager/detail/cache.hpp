@@ -16,14 +16,21 @@ namespace resmanager {
         // If already present, return the resource directly, otherwise load and then return it
         template<typename... Args>
         ResourceType load(const K id, Args&&... args) {
+            return load_check(id, std::forward<Args>(args)...).first;
+        }
+
+        // If already present, return the resource directly, otherwise load and then return it
+        // Also return true if the resource was already in the cache, false otherwise
+        template<typename... Args>
+        std::pair<ResourceType, bool> load_check(const K id, Args&&... args) {
             if (auto iter = cache.find(id); iter != cache.end()) {
-                return iter->second;
+                return std::make_pair(iter->second, true);
             } else {
                 const L loader {};
                 ResourceType resource {loader(std::forward<Args>(args)...)};
                 cache[id] = resource;
 
-                return resource;
+                return std::make_pair(resource, false);
             }
         }
 
