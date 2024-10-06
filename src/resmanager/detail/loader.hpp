@@ -28,7 +28,8 @@ namespace resmanager {
         }
     };
 
-    // Used by default by the cache
+    // std::shared_ptr is used by default by the cache
+    // You may use a different smart pointer
     template<typename T>
     using DefaultLoader = Loader<T, std::shared_ptr<T>>;
 }

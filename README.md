@@ -49,6 +49,7 @@ private:
     // ...
 };
 
+// Some function that needs to be called at image creation time
 void some_image_initialization_function(std::shared_ptr<Image> image) {
     // ...
 }
@@ -80,7 +81,7 @@ public:
     std::shared_ptr<Image> load_image3(resmanager::HashedStr64 id, const std::string& file_path) {
         // Check if already present in the cache
         // If so, access it directly
-        if (images.contans(id)) {
+        if (images.contains(id)) {
             return images.get(id);
         }
 

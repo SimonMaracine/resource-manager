@@ -48,7 +48,7 @@ int main() {
         std::cout << foo.data << '\n';
     }
 
-    // Default constructor
+    // Default constructor, zero
     [[maybe_unused]] constexpr std::uint32_t hash0 {resmanager::HashedStr32()};
 
     // Compile time hashes

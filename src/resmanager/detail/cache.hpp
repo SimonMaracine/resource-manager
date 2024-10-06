@@ -9,6 +9,8 @@
 #include "hashing.hpp"
 
 namespace resmanager {
+    // Data structure that holds references to resources for fast access
+    // Could be used as main storage too
     template<typename T, typename L = DefaultLoader<T>, typename K = HashedStr64, typename H = Hash<K>>
     class Cache {
     public:
